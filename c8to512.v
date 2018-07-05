@@ -31,18 +31,23 @@ module c8to512
 	reg [7:0] src_port;
 	reg [7:0] dst_port;
 	reg [7:0] pcie_port;
-	reg [7:0] flow_table;
+	reg [7:0] next_output;
 	
 	always @(posedge clk or negedge rst)
 	begin
 		if(!rst)begin
+			src_port <= 0;
+		    dst_port <= 0;
+		    pcie_port <= 0;
+		    next_output <= 0;
 			out_wr <= 0;
 			cur_byte <= 0;
 			flag <= 0;
-			out_ctl <= {src_port,dst_port,pcie_port,flow_table};//控制位由这四个组成，目前默认参数均为零
+			out_ctl <= 0;//控制位由这四个组成，目前默认参数均为零
 			end
 		else begin
 			out_wr <= 0;
+			out_ctl <= {src_port,dst_port,pcie_port,next_output};//控制位由这四个组成，目前默认参数均为零
 			if(datavalid && cur_byte < 60) begin
 				out_data <= {out_data[DATA_WIDTH-1-8:0],data_in};
 				cur_byte <= cur_byte + 1;
