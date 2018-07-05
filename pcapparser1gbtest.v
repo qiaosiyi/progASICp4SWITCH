@@ -32,6 +32,10 @@ module PcapParser_test
 	wire out_wr;
 	wire [CTRL_WIDTH-1:0] out_ctl;
 	wire [DATA_WIDTH-1:0] out_data;
+	
+	wire out_wr1;
+	wire [CTRL_WIDTH-1:0] out_ctl1;
+	wire [DATA_WIDTH-1:0] out_data1;
 
 	// Instantiate the Unit Under Test (UUT)
 	PcapParser #(
@@ -58,6 +62,19 @@ module PcapParser_test
 		.out_wr(out_wr),
 		.out_ctl(out_ctl),
 		.out_data(out_data)
+	);
+	
+	selector #(
+		
+	) selector0(
+		.clk(CLOCK),
+		.rst(rst),
+		.datavalid(out_wr),
+		.in_ctl(out_ctl),
+		.in_data(out_data),
+		.out_wr(out_wr1),
+		.out_ctl(out_ctl1),
+		.out_data(out_data1)
 	);
 
 	always #10 CLOCK = ~CLOCK;
