@@ -36,6 +36,9 @@ module PcapParser_test
 	wire out_wr1;
 	wire [CTRL_WIDTH-1:0] out_ctl1;
 	wire [DATA_WIDTH-1:0] out_data1;
+	
+	
+	
 
 	// Instantiate the Unit Under Test (UUT)
 	PcapParser #(
@@ -76,6 +79,45 @@ module PcapParser_test
 		.out_ctl(out_ctl1),
 		.out_data(out_data1)
 	);
+	
+	crossbar #() crossbar0(
+		.clk(CLOCK),
+		.rst(rst),
+		
+		
+		.datavalid0(out_wr1),
+		.in_ctl0(out_ctl1),
+		.in_data0(out_data1),
+		
+		.datavalid1(), 
+		.in_ctl1(),
+		.in_data1(),
+		
+		.datavalid2(),
+		.in_ctl2(),
+		.in_data2(),
+		
+		.datavalid3(),
+		.in_ctl3(),
+		.in_data3(),
+		
+		
+		.out_wr0(),
+		.out_ctl0(),
+		.out_data0(),
+		
+		.out_wr1(),
+		.out_ctl1(),
+		.out_data1(),
+		
+		.out_wr2(),
+		.out_ctl2(),
+		.out_data2(),
+		
+		.out_wr3(),
+		.out_ctl3(),
+		.out_data3()
+	);
 
 	always #10 CLOCK = ~CLOCK;
 	
@@ -92,7 +134,7 @@ module PcapParser_test
 		$display("Reading from pcap");
 
 		// Wait 100 ns for global reset to finish
-		#10; 
+		#50; 
 		rst = 1;
 
 		// Add stimulus here
