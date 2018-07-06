@@ -1,16 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
-// $Id: fallthrough_small_fifo.v 5205 2009-03-08 18:54:46Z grg $
-//
-// Module: fallthrough_small_fifo.v
-// Project: NF_2.1_reference
-// Description: small fifo with first word fallthrough i.e. data valid as soon as
-//  it is available
-//
-// Change history:
-//   8/2/07 -- Set nearly full to 2^MAX_DEPTH_BITS - 1 by default so that it
-//             goes high a clock cycle early.
-//
-///////////////////////////////////////////////////////////////////////////////
+
 
 // Coder:	joe
 // Description:
