@@ -1,5 +1,3 @@
-
-
 // Coder:	joe
 // Description:
 //	fallthrough_small_fifo
