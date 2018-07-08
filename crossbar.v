@@ -133,10 +133,10 @@ module crossbar
 	
 	assign notempty = !empty[0] | !empty[1] | !empty[2] | !empty[3];
 	
-	assign rd_en[0] = !empty[0];
-	assign rd_en[1] = !empty[1];
-	assign rd_en[2] = !empty[2];
-	assign rd_en[3] = !empty[3];
+	assign rd_en[0] = (switch_operate[0] == 7)? 0 : !empty[0];
+	assign rd_en[1] = (switch_operate[1] == 7)? 0 : !empty[1];
+	assign rd_en[2] = (switch_operate[2] == 7)? 0 : !empty[2];
+	assign rd_en[3] = (switch_operate[3] == 7)? 0 : !empty[3];
 	
 	always@(*)begin
 		switch_hot_code = 0;
@@ -145,7 +145,7 @@ module crossbar
 		switch_operate[2] = 7;
 		switch_operate[3] = 7;
 		
-		if(!empty[0])begin
+		/* if(!empty[0])begin
 			switch_hot_code[dst_index[0]] = 1;
 			switch_operate[0]=dst_index[0];
 		end else if(!empty[1]) begin
@@ -163,7 +163,36 @@ module crossbar
 				switch_hot_code[dst_index[3]] = 1;
 				switch_operate[3]=dst_index[3];
 			end
+		end */
+		
+		
+		
+		if(!empty[0])begin
+			switch_hot_code[dst_index[0]] = 1;
+			switch_operate[0]=dst_index[0];
 		end
+		
+		if(!empty[1]) begin
+			if(switch_hot_code[dst_index[1]] == 0)begin
+				switch_hot_code[dst_index[1]] = 1;
+				switch_operate[1]=dst_index[1];
+			end
+		end
+		
+		if(!empty[2]) begin
+			if(switch_hot_code[dst_index[2]] == 0)begin
+				switch_hot_code[dst_index[2]] = 1;
+				switch_operate[2]=dst_index[2];
+			end
+		end
+		
+		if(!empty[3]) begin
+			if(switch_hot_code[dst_index[3]] == 0)begin
+				switch_hot_code[dst_index[3]] = 1;
+				switch_operate[3]=dst_index[3];
+			end
+		end
+		
 	end
 	
     
