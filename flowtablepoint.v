@@ -20,22 +20,71 @@ module flowtablepoint
 		input clk,
 		input rst,
 		
+		//////////////////////////////////////////////////0
+		input in_wr_0_0,
+		input [CTRL_WIDTH-1:0]			in_ctl_0_0,
+		input [DATA_WIDTH-1:0]			in_data_0_0,
+		
+		input in_wr_0_1,
+		input [CTRL_WIDTH-1:0]			in_ctl_0_1,
+		input [DATA_WIDTH-1:0]			in_data_0_1,
+		
+		input in_wr_0_2,
+		input [CTRL_WIDTH-1:0]			in_ctl_0_2,
+		input [DATA_WIDTH-1:0]			in_data_0_2,
+		
+		input in_wr_0_3,
+		input [CTRL_WIDTH-1:0]			in_ctl_0_3,
+		input [DATA_WIDTH-1:0]			in_data_0_3,
+		//////////////////////////////////////////////////1
+		input in_wr_1_0,
+		input [CTRL_WIDTH-1:0]			in_ctl_1_0,
+		input [DATA_WIDTH-1:0]			in_data_1_0,
+		
+		input in_wr_1_1,
+		input [CTRL_WIDTH-1:0]			in_ctl_1_1,
+		input [DATA_WIDTH-1:0]			in_data_1_1,
+		
+		input in_wr_1_2,
+		input [CTRL_WIDTH-1:0]			in_ctl_1_2,
+		input [DATA_WIDTH-1:0]			in_data_1_2,
+		
+		input in_wr_1_3,
+		input [CTRL_WIDTH-1:0]			in_ctl_1_3,
+		input [DATA_WIDTH-1:0]			in_data_1_3,
+		//////////////////////////////////////////////////2
+		input in_wr_2_0,
+		input [CTRL_WIDTH-1:0]			in_ctl_2_0,
+		input [DATA_WIDTH-1:0]			in_data_2_0,
+		
+		input in_wr_2_1,
+		input [CTRL_WIDTH-1:0]			in_ctl_2_1,
+		input [DATA_WIDTH-1:0]			in_data_2_1,
+		
+		input in_wr_2_2,
+		input [CTRL_WIDTH-1:0]			in_ctl_2_2,
+		input [DATA_WIDTH-1:0]			in_data_2_2,
+		
+		input in_wr_2_3,
+		input [CTRL_WIDTH-1:0]			in_ctl_2_3,
+		input [DATA_WIDTH-1:0]			in_data_2_3,
+		//////////////////////////////////////////////////3
+		input in_wr_3_0,
+		input [CTRL_WIDTH-1:0]			in_ctl_3_0,
+		input [DATA_WIDTH-1:0]			in_data_3_0,
+		
+		input in_wr_3_1,
+		input [CTRL_WIDTH-1:0]			in_ctl_3_1,
+		input [DATA_WIDTH-1:0]			in_data_3_1,
+		
+		input in_wr_3_2,
+		input [CTRL_WIDTH-1:0]			in_ctl_3_2,
+		input [DATA_WIDTH-1:0]			in_data_3_2,
+		
+		input in_wr_3_3,
+		input [CTRL_WIDTH-1:0]			in_ctl_3_3,
+		input [DATA_WIDTH-1:0]			in_data_3_3,
 		//////////////////////////////////////////////////
-		input in_wr_0,
-		input [CTRL_WIDTH-1:0]			in_ctl_0,
-		input [DATA_WIDTH-1:0]			in_data_0,
-		
-		input in_wr_1,
-		input [CTRL_WIDTH-1:0]			in_ctl_1,
-		input [DATA_WIDTH-1:0]			in_data_1,
-		
-		input in_wr_2,
-		input [CTRL_WIDTH-1:0]			in_ctl_2,
-		input [DATA_WIDTH-1:0]			in_data_2,
-		
-		input in_wr_3,
-		input [CTRL_WIDTH-1:0]			in_ctl_3,
-		input [DATA_WIDTH-1:0]			in_data_3,
 		//////////////////////////////////////////////////0
 		output out_wr_0_0,
 		output [CTRL_WIDTH-1:0]			out_ctl_0_0,
@@ -106,12 +155,25 @@ module flowtablepoint
 	);
 	
 	// ------------- Regs/ wires -----------
-	wire [NUM_QUEUES-1:0]			select_in_wr;
-	wire [CTRL_WIDTH-1:0]			select_in_ctl [NUM_QUEUES-1:0];
-	wire [DATA_WIDTH-1:0]			select_in_data [NUM_QUEUES-1:0];
+	wire [NUM_QUEUES-1:0]			input_arb_in_wr0;
+	wire [CTRL_WIDTH-1:0]			input_arb_in_ctl0 [NUM_QUEUES-1:0];
+	wire [DATA_WIDTH-1:0]			input_arb_in_data0 [NUM_QUEUES-1:0];
+	wire [NUM_QUEUES-1:0]			input_arb_in_wr1;
+	wire [CTRL_WIDTH-1:0]			input_arb_in_ctl1 [NUM_QUEUES-1:0];
+	wire [DATA_WIDTH-1:0]			input_arb_in_data1 [NUM_QUEUES-1:0];
+	wire [NUM_QUEUES-1:0]			input_arb_in_wr2;
+	wire [CTRL_WIDTH-1:0]			input_arb_in_ctl2 [NUM_QUEUES-1:0];
+	wire [DATA_WIDTH-1:0]			input_arb_in_data2 [NUM_QUEUES-1:0];
+	wire [NUM_QUEUES-1:0]			input_arb_in_wr3;
+	wire [CTRL_WIDTH-1:0]			input_arb_in_ctl3 [NUM_QUEUES-1:0];
+	wire [DATA_WIDTH-1:0]			input_arb_in_data3 [NUM_QUEUES-1:0];
+	                     
+	wire [NUM_QUEUES-1:0]			input_arb_out_wr;	
+	wire [CTRL_WIDTH-1:0]			input_arb_out_ctl	[NUM_QUEUES-1:0];
+	wire [DATA_WIDTH-1:0]			input_arb_out_data	[NUM_QUEUES-1:0];
 	
 	wire [NUM_QUEUES-1:0]			select_out_wr;
-	wire [CTRL_WIDTH-1:0]			select_out_ctl [NUM_QUEUES-1:0];
+	wire [CTRL_WIDTH-1:0]			select_out_ctl 	[NUM_QUEUES-1:0];
 	wire [DATA_WIDTH-1:0]			select_out_data [NUM_QUEUES-1:0];
 	
 	wire [NUM_QUEUES-1:0]			crossbar_out_wr;
@@ -138,6 +200,38 @@ module flowtablepoint
 	
 	
 	// ------------ Modules -------------
+	
+	generate
+	genvar iinarb;
+	for(iinarb=0; iinarb<NUM_QUEUES; iinarb=iinarb+1) begin: input_arb_q
+		input_arb
+			#()
+		input_arbs
+			(
+			.clk(clk),
+			.rst(rst),
+			
+			.datavalid0(input_arb_in_wr0[iinarb]),
+			.in_ctl0(input_arb_in_ctl0[iinarb]),
+			.in_data0(input_arb_in_data0[iinarb]),
+		
+			.datavalid1(input_arb_in_wr1[iinarb]), 
+			.in_ctl1(input_arb_in_ctl1[iinarb]),
+			.in_data1(input_arb_in_data1[iinarb]),
+		
+			.datavalid2(input_arb_in_wr2[iinarb]),
+			.in_ctl2(input_arb_in_ctl2[iinarb]),
+			.in_data2(input_arb_in_data2[iinarb]),
+		
+			.datavalid3(input_arb_in_wr3[iinarb]),
+			.in_ctl3(input_arb_in_ctl3[iinarb]),
+			.in_data3(input_arb_in_data3[iinarb]),
+			
+			.out_wr0		(input_arb_out_wr	[iinarb]),
+			.out_ctl0	(input_arb_out_ctl	[iinarb]),
+			.out_data0	(input_arb_out_data	[iinarb]));
+	end 
+	endgenerate
 
 	generate
 	genvar isel;
@@ -148,9 +242,9 @@ module flowtablepoint
 			(
 			.clk(clk),
 			.rst(rst),
-			.datavalid(select_in_wr[isel]),
-			.in_ctl(select_in_ctl[isel]),
-			.in_data(select_in_data[isel]),
+			.datavalid(input_arb_out_wr[isel]),
+			.in_ctl(input_arb_out_ctl[isel]),
+			.in_data(input_arb_out_data[isel]),
 			.out_wr(select_out_wr[isel]),
 			.out_ctl(select_out_ctl[isel]),
 			.out_data(select_out_data[isel]));
@@ -246,21 +340,7 @@ module flowtablepoint
 	endgenerate
 	
 	// ------------- Logic ------------
-	assign select_in_wr[0]           = in_wr_0;
-	assign select_in_ctl[0]    	     = in_ctl_0;
-	assign select_in_data[0]         = in_data_0;
-	
-	assign select_in_wr[1]           = in_wr_1;
-	assign select_in_ctl[1]    	     = in_ctl_1;
-	assign select_in_data[1]         = in_data_1;
-	
-	assign select_in_wr[2]           = in_wr_2;
-	assign select_in_ctl[2]    	     = in_ctl_2;
-	assign select_in_data[2]         = in_data_2;
-	
-	assign select_in_wr[3]           = in_wr_3;
-	assign select_in_ctl[3]    	     = in_ctl_3;
-	assign select_in_data[3]         = in_data_3;	
+
 	
 	assign out_wr_0_0				 = next_out_wr0[0];
 	assign out_wr_0_1				 = next_out_wr0[1];
@@ -321,7 +401,65 @@ module flowtablepoint
 	assign out_data_3_1				 = next_out_data3[1];
 	assign out_data_3_2				 = next_out_data3[2];
 	assign out_data_3_3				 = next_out_data3[3];
+	///////////////////////////////////////////////////////////////////////////////////
+	assign input_arb_in_wr0[0]		 = in_wr_0_0;
+	assign input_arb_in_wr1[0]		 = in_wr_0_1;
+	assign input_arb_in_wr2[0]		 = in_wr_0_2;
+	assign input_arb_in_wr3[0]		 = in_wr_0_3;
 	
+	assign input_arb_in_ctl0[0]		 = in_ctl_0_0;
+	assign input_arb_in_ctl1[0]		 = in_ctl_0_1;
+	assign input_arb_in_ctl2[0]		 = in_ctl_0_2;
+	assign input_arb_in_ctl3[0]		 = in_ctl_0_3;
 	
+	assign input_arb_in_data0[0]	 = in_data_0_0;
+	assign input_arb_in_data1[0]	 = in_data_0_1;
+	assign input_arb_in_data2[0]	 = in_data_0_2;
+	assign input_arb_in_data3[0]	 = in_data_0_3;
+	
+	assign input_arb_in_wr0[1]		 = in_wr_1_0;
+	assign input_arb_in_wr1[1]		 = in_wr_1_1;
+	assign input_arb_in_wr2[1]		 = in_wr_1_2;
+	assign input_arb_in_wr3[1]		 = in_wr_1_3;
+	
+	assign input_arb_in_ctl0[1]		 = in_ctl_1_0;
+	assign input_arb_in_ctl1[1]		 = in_ctl_1_1;
+	assign input_arb_in_ctl2[1]		 = in_ctl_1_2;
+	assign input_arb_in_ctl3[1]		 = in_ctl_1_3;
+	
+	assign input_arb_in_data0[1]	 = in_data_1_0;
+	assign input_arb_in_data1[1]	 = in_data_1_1;
+	assign input_arb_in_data2[1]	 = in_data_1_2;
+	assign input_arb_in_data3[1]	 = in_data_1_3;
+	
+	assign input_arb_in_wr0[2]		 = in_wr_2_0;
+	assign input_arb_in_wr1[2]		 = in_wr_2_1;
+	assign input_arb_in_wr2[2]		 = in_wr_2_2;
+	assign input_arb_in_wr3[2]		 = in_wr_2_3;
+	
+	assign input_arb_in_ctl0[2]		 = in_ctl_2_0;
+	assign input_arb_in_ctl1[2]		 = in_ctl_2_1;
+	assign input_arb_in_ctl2[2]		 = in_ctl_2_2;
+	assign input_arb_in_ctl3[2]		 = in_ctl_2_3;
+	
+	assign input_arb_in_data0[2]	 = in_data_2_0;
+	assign input_arb_in_data1[2]	 = in_data_2_1;
+	assign input_arb_in_data2[2]	 = in_data_2_2;
+	assign input_arb_in_data3[2]	 = in_data_2_3;
+	
+	assign input_arb_in_wr0[3]		 = in_wr_3_0;
+	assign input_arb_in_wr1[3]		 = in_wr_3_1;
+	assign input_arb_in_wr2[3]		 = in_wr_3_2;
+	assign input_arb_in_wr3[3]		 = in_wr_3_3;
+	
+	assign input_arb_in_ctl0[3]		 = in_ctl_3_0;
+	assign input_arb_in_ctl1[3]		 = in_ctl_3_1;
+	assign input_arb_in_ctl2[3]		 = in_ctl_3_2;
+	assign input_arb_in_ctl3[3]		 = in_ctl_3_3;
+	
+	assign input_arb_in_data0[3]	 = in_data_3_0;
+	assign input_arb_in_data1[3]	 = in_data_3_1;
+	assign input_arb_in_data2[3]	 = in_data_3_2;
+	assign input_arb_in_data3[3]	 = in_data_3_3;
 
 endmodule
