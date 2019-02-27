@@ -1,15 +1,21 @@
 `timescale 1ns / 1ps
 //pkt_ctl 0x00:invalid
 //pkt_ctl 0x01:start
-//pkt_ctl 0x02:stop
-//pkt_ctl 0x03:64byte packet, only takes one cycle.
-
+//pkt_ctl 0x02:payload
+//pkt_ctl 0x03:end.
+//pkt_ctl 0x04:64byte packet, only takes one cycle.
 
 module test_b;
 
 	wire out_valid_pid;
 	wire [8:0] out_pid;
+	wire [7:0] out_ctl;
 	wire [511:0] header;
+	
+	wire out_valid_pkt_ppl;
+	wire [7:0] out_pkt_ctl_ppl;
+	wire [511:0] out_pkt_data_ppl;
+
 	
 	reg	reset=1, clk=0;
 	reg [511:0] pkt_data [0:49];
@@ -67,7 +73,12 @@ always@(posedge clk or reset)begin
 		
 		.out_valid_pid(out_valid_pid),
 		.out_pid(out_pid),
-		.header(header)
+		.out_ctl(out_ctl),
+		.out_header(header),
+		
+		.out_valid_pkt_ppl(out_valid_pkt_ppl),
+		.out_pkt_ctl_ppl(out_pkt_ctl_ppl),
+		.out_pkt_data_ppl(out_pkt_data_ppl)
 	);
 	
 
