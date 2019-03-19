@@ -14,10 +14,17 @@ module statefull(
     );
 	
 	reg [23:0] ram_cam [0:15];
-	reg [7:0] state_tmp;
+	reg [23:0] ram2 [0:128];
+	reg [7:0]  state_tmp;
 	reg [23:0] action_tmp;
-	reg [3:0] cam_q_tmp;
+	reg [3:0]  cam_q_tmp;
 	reg mm_cam_vld;
+	
+	wire [511:0] fifo_pkt_dout;
+	reg cam_q_vld;
+	reg fifo_pkt_rd;
+	wire cam_out_vld;
+	
 	
 	fifofall #(//存放packet数据
 	  .C_WIDTH(511),
@@ -39,7 +46,7 @@ module statefull(
 	  cam#() cam_inst(
 		.data_in_vld(cam_q_vld),
 		.data_in(fifo_pkt_dout[3:0]),
-		.cam_out_vld(cam_q_vld),
+		.cam_out_vld(cam_out_vld),
 		.cam_out(cam_q_data),
 		.reset(reset),
 		.clk(clk)
@@ -60,6 +67,7 @@ module statefull(
 	always @(posedge clk)begin //查mm_cam表
 		if(reset)begin
 			cam_q_vld <= 0;
+			ram_cam[0] <= {16'hffff,8'h01};
 		end else begin
 			if(cam_q_vld)begin
 				state_tmp <= ram_cam[cam_q_data][7:0];
@@ -72,9 +80,12 @@ module statefull(
 		end
 	end	
 	
-	always @(posedge clk)begin //查 mm_cam 表
+	always @(posedge clk)begin //查 mm_cam表
 		if(reset)begin
 			cam_q_vld <= 0;
+			ram2[0] <= {16'h00ff,8'h01};
+			ram2[1] <= {16'h00ff,8'h02};
+			ram2[2] <= {16'h0200,8'h03};
 		end else begin
 			if(mm_cam_vld)begin
 				if(action_tmp[15:8] > 0)begin
