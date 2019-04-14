@@ -69,7 +69,7 @@ module ndp4_8
 		
 		output reg out_wr7,
 		output reg [CTRL_WIDTH-1:0] out_ctl7,
-		output reg [DATA_WIDTH-1:0] out_data7,
+		output reg [DATA_WIDTH-1:0] out_data7
 		
 	);
 	
