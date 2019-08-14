@@ -7,7 +7,7 @@ quint32 = 4294967295
 quint16 = 65535
 
 D = 3012#3456
-di = 1.0055
+di = 1.0068
 
 
 def getPC(cc,di):
@@ -24,6 +24,7 @@ def getPC(cc,di):
 				ofiledma.write(str(int(c))+" "+str(int(math.floor(pc)))+"\n")
 				if flag == 0:
 					plutmax = int(math.floor(pc))
+					cmax = c
 					flag = 1
 	# print "plutmax =",plutmax,"plutwidth =",plutmax.bit_length()+2
 	print "= Plut Width =",plutmax.bit_length()+2
@@ -33,7 +34,7 @@ def getPC(cc,di):
 	print "= Max counting value for one flow =", aaa,"Bytes( %.2f" % aaaGB,"GB)"
 	print "="
 	print "= Write PLUT calculation values in file named DISCOplut.txt !!"
-	print "="
+	print "=","cmax=",int(cmax)
 	print "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = ="
 	print
 
