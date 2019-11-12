@@ -124,67 +124,220 @@ always @ (*) begin
 end
 /////////////////FSM 2  
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+/////////////////FSM 3
+always @(posedge clk_line)begin
+  if (clk_line_rst)begin
+    out_TVALID <= 0;
+    out_TDATA <= 0;
+    in_buffer_fifo_rd_en <= 0;
+    out_buf_TDATA <= 0;
+    out_buf_TKEEP <= 0;
+    last_done <= 0;
+  end else begin
+    case(pre_state)
+      S_IDLE: begin //waiting for action, doing nothing .0.
+        if(!in_buffer_fifo_empty && !in_buffer_fifo_dout_TLAST && out_TREADY) begin
+          // next_state = S_TRANSA;
+          out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+          out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+          out_TVALID <= 1;                                                        //AXI
+          out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];            //AXI: [C_WIDTH_TDATA/2-1:0]
+          out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];            //AXI: [C_WIDTH_TKEEP/2-1:0]
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 1;                                              //FIFO: 
+
+        end else if(!in_buffer_fifo_empty && in_buffer_fifo_dout_TLAST && out_TREADY)begin
+          // next_state = S_TRANSB;
+`ifdef TEST
+          if(in_buffer_fifo_dout_TKEEP <= 8'h0F)begin
+`else
+          if(in_buffer_fifo_dout_TKEEP <= 64'h0000_0000_FFFF_FFFF)begin
+`endif
+            out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+            out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+            out_TVALID <= 1;                                                      //AXI
+            out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];          //AXI: [C_WIDTH_TDATA/2-1:0]
+            out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];          //AXI: [C_WIDTH_TKEEP/2-1:0]
+            out_TLAST <= 1;                                                       //AXI
+            in_buffer_fifo_rd_en <= 1;                                            //FIFO: 
+
+            last_done <= 1;
+          end else begin
+            out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+            out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+            out_TVALID <= 1;                                                      //AXI
+            out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];          //AXI: [C_WIDTH_TDATA/2-1:0]
+            out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];          //AXI: [C_WIDTH_TKEEP/2-1:0]
+            out_TLAST <= 0;                                                       //AXI
+            in_buffer_fifo_rd_en <= 1;                                            //FIFO: 
+
+            last_done <= 0;
+          end
+        end else begin
+          // next_state = S_IDLE; 
+          out_buf_TDATA <= 0;
+          out_buf_TKEEP <= 0;
+          out_TVALID <= 0;                                                        //AXI
+          out_TDATA <= 0;                                                         //AXI: 
+          out_TKEEP <= 0;                                                         //AXI:
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO: 
+          last_done <= 0;
+        end
+      end
+
+      S_TRANSA: begin // TRANS step A, include trans1a and trans1b, each of them only send 256bits data. .1.
+        if(out_TREADY)begin
+          // next_state = S_TRANSB;
+          out_TVALID <= 1;                                                        //AXI
+          out_TDATA <= out_buf_TDATA[C_WIDTH_TDATA-1:C_WIDTH_TDATA/2];            //AXI: [C_WIDTH_TDATA-1:C_WIDTH_TDATA/2]
+          out_TKEEP <= out_buf_TKEEP[C_WIDTH_TKEEP-1:C_WIDTH_TKEEP/2];            //AXI: 
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO: 
+        end else begin
+          out_TVALID <= 0;                                                        //AXI
+          out_TDATA <= 0;                                                         //AXI: 
+          out_TKEEP <= 0;                                                         //AXI: 
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO: 
+        end
+      end
+
+      S_TRANSB: begin // TRANS step B, send the second 256 bits of this frame .2.
+        if( !in_buffer_fifo_empty && !in_buffer_fifo_dout_TLAST && out_TREADY )begin
+          // next_state = S_TRANSA;
+          out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+          out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+          out_TVALID <= 1;                                                        //AXI
+          out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];            //AXI: [C_WIDTH_TDATA/2-1:0]
+          out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];            //AXI: [C_WIDTH_TKEEP/2-1:0]
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 1;                                              //FIFO: 
+
+        end else if(!in_buffer_fifo_empty && in_buffer_fifo_dout_TLAST && out_TREADY)begin
+          // next_state = S_LASTA;
+  `ifdef TEST
+          if(in_buffer_fifo_dout_TKEEP <= 8'h0F)begin
+  `else
+          if(in_buffer_fifo_dout_TKEEP <= 64'h0000_0000_FFFF_FFFF)begin
+  `endif
+            out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+            out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+            out_TVALID <= 1;                                                      //AXI
+            out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];          //AXI: [C_WIDTH_TDATA/2-1:0]
+            out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];          //AXI: [C_WIDTH_TKEEP/2-1:0]
+            out_TLAST <= 1;                                                       //AXI
+            in_buffer_fifo_rd_en <= 1;                                            //FIFO: 
+
+            last_done <= 1;
+          end else begin
+            out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+            out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+            out_TVALID <= 1;                                                      //AXI
+            out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];          //AXI: [C_WIDTH_TDATA/2-1:0]
+            out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];          //AXI: [C_WIDTH_TKEEP/2-1:0]
+            out_TLAST <= 0;                                                       //AXI
+            in_buffer_fifo_rd_en <= 1;                                            //FIFO: 
+
+            last_done <= 0;
+          end
+        end else begin
+          // next_state = S_TRANSB; 
+          out_TVALID <= 0;                                                        //AXI
+          out_TDATA <= 0;                                                         //AXI
+          out_TKEEP <= 0;                                                         //AXI
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO: still keep fifo head data
+        end
+      end
+
+      S_LASTA: begin //finishing the frame, need to valid TLAST signal, last frame size==256bits. .3.
+        if( out_TREADY && !last_done) begin
+          // next_state = S_LASTB;
+          out_TVALID <= 1;                                                        //AXI
+          out_TDATA <= out_buf_TDATA[C_WIDTH_TDATA-1:C_WIDTH_TDATA/2];            //AXI: [C_WIDTH_TDATA-1:C_WIDTH_TDATA/2]
+          out_TKEEP <= out_buf_TKEEP[C_WIDTH_TKEEP-1:C_WIDTH_TKEEP/2];            //AXI: 
+          out_TLAST <= 1;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO: 
+          last_done <= 0;
+
+        end else begin
+          // next_state = S_LASTA; 
+          out_TVALID <= 0;                                                        //AXI
+          out_TDATA <= 0;                                                         //AXI: 
+          out_TKEEP <= 0;                                                         //AXI: 
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO:
+        end
+      end
+
+      S_LASTB: begin // last2 B.last frame size==512bits .5.
+        if( !in_buffer_fifo_empty && !in_buffer_fifo_dout_TLAST && out_TREADY ) begin
+          // next_state = S_TRANSA;
+          out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+          out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+          out_TVALID <= 1;                                                        //AXI
+          out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];            //AXI: [C_WIDTH_TDATA/2-1:0]
+          out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];            //AXI: [C_WIDTH_TKEEP/2-1:0]
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 1;                                              //FIFO: 
+        end else if(!in_buffer_fifo_empty && in_buffer_fifo_dout_TLAST && out_TREADY)begin
+          // next_state = S_LASTA; //next data is also a last frame, and need to be sent.
+  `ifdef TEST
+          if(in_buffer_fifo_dout_TKEEP <= 8'h0F)begin
+  `else
+          if(in_buffer_fifo_dout_TKEEP <= 64'h0000_0000_FFFF_FFFF)begin
+  `endif
+            out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+            out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+            out_TVALID <= 1;                                                      //AXI
+            out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];          //AXI: [C_WIDTH_TDATA/2-1:0]
+            out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];          //AXI: [C_WIDTH_TKEEP/2-1:0]
+            out_TLAST <= 1;                                                       //AXI
+            in_buffer_fifo_rd_en <= 1;                                            //FIFO: 
+
+            last_done <= 1;
+          end else begin
+            out_buf_TDATA <= in_buffer_fifo_dout_TDATA;
+            out_buf_TKEEP <= in_buffer_fifo_dout_TKEEP;
+
+            out_TVALID <= 1;                                                      //AXI
+            out_TDATA <= in_buffer_fifo_dout_TDATA[C_WIDTH_TDATA/2-1:0];          //AXI: [C_WIDTH_TDATA/2-1:0]
+            out_TKEEP <= in_buffer_fifo_dout_TKEEP[C_WIDTH_TKEEP/2-1:0];          //AXI: [C_WIDTH_TKEEP/2-1:0]
+            out_TLAST <= 0;                                                       //AXI
+            in_buffer_fifo_rd_en <= 1;                                            //FIFO: 
+
+            last_done <= 0;
+          end
+        end else if (!out_TREADY) begin
+          // next_state = S_LASTB; // ~tready. just waiting for valid tready.
+          out_TVALID <= 0;                                                        //AXI
+          out_TDATA <= 0;                                                         //AXI: 
+          out_TKEEP <= 0;                                                         //AXI: 
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO:
+        end else begin
+          // next_state = S_IDLE;
+          out_TVALID <= 0;                                                        //AXI
+          out_TDATA <= 0;                                                         //AXI: 
+          out_TKEEP <= 0;                                                         //AXI: 
+          out_TLAST <= 0;                                                         //AXI
+          in_buffer_fifo_rd_en <= 0;                                              //FIFO:
+        end
+      end
+    endcase
+  end
+end
+///////////////FSM 3
+
+
+endmodule  
   
