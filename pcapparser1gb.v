@@ -3,8 +3,10 @@
 
 // Coder:	joe
 // Description:
-//	将pcap文件中的数据包读出来，8bit位宽
-//  
+//	
+//      open pcap packet data files, 
+//      and read it as a 8bits wide network 
+//      data stream.
 //   
 //
 //  
